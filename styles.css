@@ -9,8 +9,8 @@ body {
 
 h1 {
     margin-bottom: 20px;
+    font-size: 6rem;
 }
-
 
 /* Search Bar */
 .search-box {
@@ -112,7 +112,7 @@ h2 {
     margin: 0 auto 15px auto;
     font-size: 1.3rem;
     color: black;
-    margin-bottom: 5px;
+    margin-bottom: 12px;
 }
 
 .tracks-table td:nth-child(2) {
@@ -127,7 +127,7 @@ h2 {
     border-radius: 5px;
     border: 1px solid #333;
     font-size: 1rem;
-    margin-bottom: 0px;
+    margin-bottom: 10px;
 }
 
 #tracklist {
@@ -171,6 +171,7 @@ h2 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
+    margin-right: 10px;
 }
 
 .restart-btn:hover {
@@ -197,4 +198,64 @@ h2 {
 .back-button:hover {
     color: black;         /* Lighter green on hover */
     text-decoration: underline; /* Optional: underline on hover */
+}
+
+.mem-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #851111;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 2px solid #333;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-top: 20px;
+    margin-right: 50px;
+}
+
+.mem-button:hover {
+    background-color: #b51919;
+}
+
+.play-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1DB954;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 2px solid #333;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-top: 20px;
+}
+
+.play-button:hover {
+    background-color: #17a44c;
+}
+
+.album-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    text-align: center;
+    color: black;
+}
+
+.give-up {
+    padding: 4px 10px;
+    font-size: 1rem;
+    background-color: #851111;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-right: 10px;
+}
+
+.give-up:hover {
+    background-color: #b51919;
 }
