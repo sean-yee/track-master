@@ -167,6 +167,12 @@ function setupTrackGuessing(tracks, table) {
     restartBtn.classList.add("restart-btn");
     timerContainer.appendChild(restartBtn);
 
+    // Create give up button
+    const giveUpBtn = document.createElement("button");
+    giveUpBtn.textContent = "Give Up";
+    giveUpBtn.classList.add("give-up");
+    timerContainer.appendChild(giveUpBtn);
+
     let startTime = null;
     let interval = null;
     let guessedCount = 0;
@@ -210,8 +216,29 @@ function setupTrackGuessing(tracks, table) {
         });
     }
 
+    function giveUp() {
+        clearInterval(interval);
+        interval = null;
+
+        const rows = table.querySelectorAll("tr");
+        rows.forEach((row, index) => {
+            if (index === 0) return;
+            const cell = row.querySelector(".track-name");
+
+            if (cell.style.display !== "table-cell") {
+                cell.style.display = "table-cell";
+                row.style.backgroundColor = "red";
+                row.style.color = "white";
+            }
+        });
+
+        search.disabled = true;
+        timerDisplay.textContent = "❌ You gave up!";
+    }
+
     // Attach restart button functionality
     restartBtn.addEventListener("click", restartGame);
+    giveUpBtn.addEventListener("click", giveUp);
 
     // Guessing logic
     search.addEventListener("focus", startTimer);
