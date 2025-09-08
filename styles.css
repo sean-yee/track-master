@@ -177,3 +177,24 @@ h2 {
     background-color: #17a44c;
 }
 
+.back-button {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: none;        /* No background */
+    border: none;           /* No border */
+    color: #333;         /* Spotify green */
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1000;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;       /* No shadow */
+    transition: color 0.2s ease-in-out;
+}
+
+.back-button:hover {
+    color: black;         /* Lighter green on hover */
+    text-decoration: underline; /* Optional: underline on hover */
+}

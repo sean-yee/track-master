@@ -71,11 +71,11 @@ async function fetchAlbums(artistId) {
     });
 
     const data = await response.json();
-    displayAlbums(data.items);
+    displayAlbums(data.items, artistId);
 }
 
 // STEP 5 — Display Albums
-function displayAlbums(albums) {
+function displayAlbums(albums, artistId) {
     results.innerHTML = "";
 
     if (albums.length === 0) {
@@ -96,7 +96,7 @@ function displayAlbums(albums) {
         `;
 
         card.addEventListener("click", () => {
-            fetchAlbumTracks(album.id, album.name)
+            fetchAlbumTracks(album.id, album.name, artistId)
         })
 
         results.appendChild(card);
@@ -104,13 +104,13 @@ function displayAlbums(albums) {
 }
 
 // Fetch tracks for a specific album
-async function fetchAlbumTracks(albumId, albumName) {
+async function fetchAlbumTracks(albumId, albumName, artistId) {
     const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=US&limit=50`, {
         headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     const data = await response.json();
-    displayAlbumTracksTable(data.items, albumName);
+    displayAlbumTracksTable(data.items, albumName, artistId);
 }
 
 // Build and display a table of tracks
@@ -169,7 +169,7 @@ function setupTrackGuessing(tracks, table) {
 
     // Create give up button
     const giveUpBtn = document.createElement("button");
-    giveUpBtn.textContent = "Give Up";
+    giveUpBtn.textContent = "Give up";
     giveUpBtn.classList.add("give-up");
     timerContainer.appendChild(giveUpBtn);
 
@@ -216,6 +216,7 @@ function setupTrackGuessing(tracks, table) {
         });
     }
 
+    // Give up and reveal answers
     function giveUp() {
         clearInterval(interval);
         interval = null;
@@ -283,16 +284,33 @@ function normalizeTitle(title) {
     return title.toLowerCase().replace(/\s*\(.*?\)/g, "").trim();
 }
 
-function displayAlbumTracksTable(tracks, albumName) {
-    results.innerHTML = ""; // Clear previous results
+function displayAlbumTracksTable(tracks, albumName, artistId) {
+    results.style.display = "none";
+    tracklist.style.display = "flex";
     tracklist.innerHTML = "";
 
     const title = document.createElement("h2");
     title.textContent = `Tracks in "${albumName}"`;
     tracklist.appendChild(title);
 
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "← Back to albums"
+    backBtn.classList.add("back-button");
+    tracklist.appendChild(backBtn);
+    setUpBackButton(backBtn, artistId);
+
     const table = createAlbumTracksTable(tracks); // create table
-    setupTrackGuessing(tracks, table);            // setup search bar
+    setupTrackGuessing(tracks, table);   
+    // setup search bar
+}
+
+function setUpBackButton(backBtn, artistId) {
+    backBtn.addEventListener("click", () => {
+        results.style.display = "grid";
+        tracklist.style.display = "none";
+         tracklist.innerHTML = "";
+        fetchAlbums(artistId);
+    });
 }
 
 
