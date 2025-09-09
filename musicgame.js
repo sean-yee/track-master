@@ -9,7 +9,7 @@ const CLIENT_SECRET = "52e53e35add44375b3c9688da8a6bc81";
 
 let accessToken = "";
 
-// STEP 1 — Get Spotify Access Token
+// ===================== STEP 1 — Get Spotify Access Token =====================
 async function getAccessToken() {
     const response = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
@@ -24,7 +24,7 @@ async function getAccessToken() {
     accessToken = data.access_token;
 }
 
-// STEP 2 — Search Artists for Dropdown
+// ===================== STEP 2 — Search Artists for Dropdown =====================
 async function searchArtists(query) {
     if (!query.trim()) {
         dropdown.style.display = "none";
@@ -39,7 +39,7 @@ async function searchArtists(query) {
     displayDropdown(data.artists.items);
 }
 
-// STEP 3 — Show Dropdown
+// ===================== STEP 3 — Show Dropdown =====================
 function displayDropdown(artists) {
     dropdown.innerHTML = "";
     if (artists.length === 0) {
@@ -52,10 +52,11 @@ function displayDropdown(artists) {
         li.textContent = artist.name;
         li.dataset.id = artist.id;
 
-        li.addEventListener("click", () => {
+        li.addEventListener("click", async () => {
             artistInput.value = artist.name;
             dropdown.style.display = "none";
-            fetchAlbums(artist.id);
+            const albums = await fetchAlbums(artist.id);
+            displayAlbums(albums.items, artist.id);
         });
 
         dropdown.appendChild(li);
@@ -64,17 +65,16 @@ function displayDropdown(artists) {
     dropdown.style.display = "block";
 }
 
-// STEP 4 — Fetch Albums
+// ===================== STEP 4 — Fetch Albums =====================
 async function fetchAlbums(artistId) {
     const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}/albums?market=US&limit=50&include_groups=album`, {
         headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    const data = await response.json();
-    displayAlbums(data.items, artistId);
+    return await response.json();
 }
 
-// STEP 5 — Display Albums
+// ===================== STEP 5 — Display Albums =====================
 function displayAlbums(albums, artistId) {
     results.innerHTML = "";
 
@@ -113,7 +113,7 @@ function displayAlbums(albums, artistId) {
     });
 }
 
-// Fetch tracks for a specific album
+// ===================== Fetch tracks for a specific album =====================
 async function fetchAlbumTracks(albumId) {
     const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=US&limit=50`, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -122,14 +122,9 @@ async function fetchAlbumTracks(albumId) {
     return await response.json();
 }
 
-// Fetch and display full discography
+// ===================== Fetch and display full discography =====================
 async function fetchFullDiscography(artistId) {
-    const response = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}/albums?market=US&limit=50&include_groups=album`,
-        { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-
-    const data = await response.json();
+    const data = await fetchAlbums(artistId);
     const albums = data.items;
 
     results.style.display = "none";
@@ -167,7 +162,7 @@ async function fetchFullDiscography(artistId) {
     setupGlobalTrackGuessing(allTracks, allTables, search, timerDisplay, restartBtn, giveUpBtn);
 }
 
-// Create shared controls
+// ===================== Create shared controls =====================
 function setupControls(artistId) {
     const backBtn = document.createElement("button");
     backBtn.textContent = "← Back to albums";
@@ -202,7 +197,7 @@ function setupControls(artistId) {
     return { backBtn, search, timerDisplay, restartBtn, giveUpBtn };
 }
 
-// Build and display a table of tracks
+// ===================== Build and display a table of tracks =====================
 function createAlbumTracksTable(tracks) {
     const table = document.createElement("table");
     table.classList.add("tracks-table");
@@ -227,7 +222,7 @@ function createAlbumTracksTable(tracks) {
     return table;
 }
 
-// Shared guessing system for both modes
+// ===================== Shared guessing system =====================
 function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartBtn, giveUpBtn) {
     let startTime = null;
     let interval = null;
@@ -259,7 +254,7 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
         tables.forEach(table => {
             const rows = table.querySelectorAll("tr");
             rows.forEach((row, index) => {
-                if (index === 0) return; // skip header
+                if (index === 0) return;
                 const cell = row.querySelector(".track-name");
                 cell.style.display = "none";
                 row.style.backgroundColor = "";
@@ -268,7 +263,7 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
         });
     }
 
-    // Give up — only unguessed songs become red
+    // Give up
     function giveUp() {
         clearInterval(interval);
         interval = null;
@@ -281,21 +276,19 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
                 if (index === 0) return;
                 const cell = row.querySelector(".track-name");
 
-                // If already guessed → keep green
                 if (cell.style.display === "table-cell" && row.style.backgroundColor === "rgb(29, 185, 84)") {
-                    row.style.backgroundColor = "#1DB954"; // keep green
+                    row.style.backgroundColor = "#1DB954";
                     row.style.color = "white";
                 } else {
-                    // If unguessed → reveal and mark red
                     cell.style.display = "table-cell";
-                    row.style.backgroundColor = "red";
+                    row.style.backgroundColor = "#d60f0f";
                     row.style.color = "white";
                 }
             });
         });
     }
 
-    // Guessing logic across ALL tables
+    // Guessing logic
     search.addEventListener("focus", startTimer);
     search.addEventListener("input", () => {
         startTimer();
@@ -304,10 +297,8 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
         tables.forEach(table => {
             const rows = table.querySelectorAll("tr");
             rows.forEach((row, index) => {
-                if (index === 0) return; // skip header
+                if (index === 0) return;
                 const cell = row.querySelector(".track-name");
-
-                // Skip if already revealed
                 if (cell.style.display === "table-cell") return;
 
                 if (normalizeTitle(cell.textContent) === guess) {
@@ -323,8 +314,15 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
                         const mins = Math.floor(totalTime / 60);
                         const secs = totalTime % 60;
                         const formattedSecs = secs < 10 ? `0${secs}` : secs;
-                        timerDisplay.textContent = `✅ Completed in ${mins}:${formattedSecs}!`;
+                        const timeStr = `${mins}:${formattedSecs}`;
+                        timerDisplay.textContent = `✅ Completed in ${timeStr}!`;
                         search.disabled = true;
+
+                        // Prompt player name and add to leaderboard
+                        const playerName = prompt("You completed the album! Enter your name:");
+                        if (playerName) {
+                            addLeaderboardEntry(playerName, timeStr, document.querySelector("h2").textContent);
+                        }
                     }
                 }
             });
@@ -335,12 +333,12 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
     giveUpBtn.addEventListener("click", giveUp);
 }
 
-// Normalize song titles
+// ===================== Normalize song titles =====================
 function normalizeTitle(title) {
     return title.toLowerCase().replace(/\s*\(.*?\)/g, "").trim();
 }
 
-// Display tracks for single album
+// ===================== Display tracks for single album =====================
 function displayAlbumTracksTable(tracks, albumName, artistId) {
     results.style.display = "none";
     tracklist.style.display = "flex";
@@ -357,17 +355,88 @@ function displayAlbumTracksTable(tracks, albumName, artistId) {
     setupGlobalTrackGuessing(tracks, [table], search, timerDisplay, restartBtn, giveUpBtn);
 }
 
-// Back button handler
+// ===================== Back button handler =====================
 function setUpBackButton(backBtn, artistId) {
     backBtn.addEventListener("click", () => {
         results.style.display = "grid";
         tracklist.style.display = "none";
         tracklist.innerHTML = "";
+
+        document.querySelectorAll(".leaderboard-table").forEach(lb => {
+            lb.style.display = "none";
+        });
+
         fetchAlbums(artistId);
     });
 }
 
-// STEP 7 — Live Search Dropdown
+// ===================== Leaderboard =====================
+function addLeaderboardEntry(playerName, timeStr, albumName) {
+    // Generate a unique leaderboard ID per album
+    const leaderboardId = `leaderboard-${albumName.replace(/\s+/g, "-").toLowerCase()}`;
+
+    // Hide all other leaderboards first
+    document.querySelectorAll(".leaderboard-table").forEach(lb => {
+        lb.style.display = "none";
+    });
+
+    // Check if leaderboard exists, else create it
+    let leaderboard = document.getElementById(leaderboardId);
+    if (!leaderboard) {
+        leaderboard = document.createElement("table");
+        leaderboard.id = leaderboardId;
+        leaderboard.classList.add("leaderboard-table");
+        leaderboard.innerHTML = `
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+        document.body.appendChild(leaderboard);
+    }
+
+    // Make sure the current leaderboard is visible
+    leaderboard.style.display = "block";
+
+    const tbody = leaderboard.querySelector("tbody");
+
+    function timeToSeconds(t) {
+        const [mins, secs] = t.split(":").map(Number);
+        return mins * 60 + secs;
+    }
+
+    const newEntry = { name: playerName, timeStr, seconds: timeToSeconds(timeStr) };
+
+    // Get existing leaderboard entries for this album
+    const existingEntries = Array.from(tbody.querySelectorAll("tr")).map(row => ({
+        name: row.cells[1].textContent,
+        timeStr: row.cells[2].textContent,
+        seconds: timeToSeconds(row.cells[2].textContent)
+    }));
+
+    existingEntries.push(newEntry);
+
+    // Sort by fastest time
+    existingEntries.sort((a, b) => a.seconds - b.seconds);
+
+    // Clear and rebuild leaderboard
+    tbody.innerHTML = "";
+    existingEntries.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${entry.name}</td>
+            <td>${entry.timeStr}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// ===================== Live Search Dropdown =====================
 artistInput.addEventListener("input", async () => {
     if (!accessToken) await getAccessToken();
     searchArtists(artistInput.value);

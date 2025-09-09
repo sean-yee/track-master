@@ -259,3 +259,55 @@ h2 {
 .give-up:hover {
     background-color: #b51919;
 }
+
+.controls-container {
+    position: sticky;      /* sticks relative to the viewport */
+    top: 0;                /* stick to top */
+    z-index: 1000;         /* make sure it stays above tables */
+    background-color: #121212; /* same as your tracklist background */
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* optional shadow */
+}
+
+/* Leaderboard table styling */
+.leaderboard-table {
+    border-collapse: collapse;
+    background-color: #ac7339; /* matches song tables */
+    color: black;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.9rem;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 250px;
+    z-index: 9999;
+    border: 1px solid #333;
+    display: none;
+    table-layout: fixed;
+}
+
+/* Leaderboard cells */
+.leaderboard-table th,
+.leaderboard-table td {
+    border: 1px solid #333;
+    padding: 6px;
+    text-align: center;
+    font-size: 0.9rem;
+    width: 33%;
+}
+
+.leaderboard-table th {
+    background-color: #ac7339;
+    font-weight: bold;
+}
+
+/* Keep all leaderboard columns visible */
+.leaderboard-table td:nth-child(2) {
+    display: table-cell;
+    width: 40%;
+}
