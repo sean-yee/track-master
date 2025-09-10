@@ -401,7 +401,7 @@ async function addLeaderboardEntry(playerName, timeStr, albumName) {
         .reduce((m, s) => m * 60 + s);
 
     // Send score to backend
-    await fetch("http://localhost:3000/leaderboard", {
+    await fetch("http://YOUR-BACKEND-NAME].onrender.com/leaderboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -418,7 +418,7 @@ async function addLeaderboardEntry(playerName, timeStr, albumName) {
 // ===================== Fetch & Display Leaderboard =====================
 async function fetchLeaderboard(albumName) {
     const leaderboardResponse = await fetch(
-        `http://localhost:3000/leaderboard/${albumName}`
+        `http://YOUR-BACKEND-NAME].onrender.com/leaderboard/${albumName}`
     );
     const data = await leaderboardResponse.json();
 
