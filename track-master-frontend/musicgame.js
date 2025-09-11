@@ -336,10 +336,10 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
                         search.disabled = true;
 
                         // Prompt player name and add to leaderboard
-                        const playerName = prompt("You completed the album! Enter your name:");
-                        if (playerName) {
+                        showNamePopup((playerName) => {
                             addLeaderboardEntry(playerName, timeStr, document.querySelector("h2").textContent);
-                        }
+                        });
+
                     }
                 }
             });
@@ -348,6 +348,61 @@ function setupGlobalTrackGuessing(tracks, tables, search, timerDisplay, restartB
 
     restartBtn.addEventListener("click", restartGame);
     giveUpBtn.addEventListener("click", giveUp);
+}
+
+
+function showNamePopup(onSubmit) {
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.classList.add("popup-overlay");
+
+    // Create popup box
+    const popup = document.createElement("div");
+    popup.classList.add("popup-box");
+
+    // Title
+    const title = document.createElement("h3");
+    title.textContent = "🎉 Congratulations!";
+    popup.appendChild(title);
+
+    const msg = document.createElement("p");
+    msg.textContent = "Enter your name for the leaderboard:";
+    popup.appendChild(msg);
+
+    // Input field
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Your name";
+    input.classList.add("popup-input");
+    popup.appendChild(input);
+
+    // Buttons container
+    const btns = document.createElement("div");
+    btns.classList.add("popup-buttons");
+
+    const submitBtn = document.createElement("button");
+    submitBtn.textContent = "Submit ✅";
+    submitBtn.addEventListener("click", () => {
+        if (input.value.trim()) {
+            document.body.removeChild(overlay);
+            onSubmit(input.value.trim());
+        }
+    });
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "Cancel ❌";
+    cancelBtn.addEventListener("click", () => {
+        document.body.removeChild(overlay);
+    });
+
+    btns.appendChild(submitBtn);
+    btns.appendChild(cancelBtn);
+    popup.appendChild(btns);
+
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+
+    input.focus();
 }
 
 // ===================== Normalize song titles =====================

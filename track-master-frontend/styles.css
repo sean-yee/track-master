@@ -338,3 +338,70 @@ h2 {
 .discography-btn:hover {
     background-color: black;
 }
+
+/* Overlay background */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Popup box */
+.popup-box {
+    background: #121212;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    animation: popIn 0.3s ease-out;
+}
+
+/* Input */
+.popup-input {
+    width: 90%;
+    padding: 8px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+}
+
+/* Buttons */
+.popup-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.popup-buttons button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.popup-buttons button:first-child {
+    background: #1DB954;
+    color: white;
+}
+
+.popup-buttons button:last-child {
+    background: #d60f0f;
+    color: white;
+}
+
+/* Animation */
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
