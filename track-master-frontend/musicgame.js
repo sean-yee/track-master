@@ -4,8 +4,8 @@ const dropdown = document.getElementById("dropdown");
 const results = document.getElementById("results");
 const tracklist = document.getElementById("tracklist");
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.LIENT_SECRET;
+const CLIENT_ID = "f5e90e272abd41ce9ee9174f5e3686ec";
+const CLIENT_SECRET = "52e53e35add44375b3c9688da8a6bc81";
 
 let accessToken = "";
 
