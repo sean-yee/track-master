@@ -2,7 +2,7 @@
   "name": "track-master-frontend",
   "version": "1.0.0",
   "description": "Spotify track master frontend",
-  "main": "home.html",
+  "main": "index.html",
   "scripts": {
     "build": "echo 'No build step needed for static site'",
     "test": "echo \"Error: no test specified\" && exit 1"
