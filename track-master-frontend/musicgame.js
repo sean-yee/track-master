@@ -1,7 +1,4 @@
 // Get the modal and button elements
-const infoModal = document.getElementById("infoModal");
-const infoBtn = document.getElementById("infoBtn");
-const closeBtn = document.getElementsByClassName("close-btn")[0];
 const form = document.getElementById("searchForm");
 const artistInput = document.getElementById("artistInput");
 const dropdown = document.getElementById("dropdown");
@@ -12,23 +9,6 @@ const CLIENT_ID = "f5e90e272abd41ce9ee9174f5e3686ec";
 const CLIENT_SECRET = "52e53e35add44375b3c9688da8a6bc81";
 
 let accessToken = "";
-
-// When the user clicks the button, open the modal
-infoBtn.onclick = function() {
-    infoModal.style.display = "block";
-}
-
-// When the user clicks on the close button, close the modal
-closeBtn.onclick = function() {
-    infoModal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == infoModal) {
-        infoModal.style.display = "none";
-    }
-}
 
 // ===================== STEP 1 — Get Spotify Access Token =====================
 async function getAccessToken() {

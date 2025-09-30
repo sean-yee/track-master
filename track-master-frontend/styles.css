@@ -12,6 +12,10 @@ h1 {
     font-size: 6rem;
 }
 
+.content {
+    text-align: left;
+}
+
 /* Search Bar */
 .search-box {
     position: relative;
