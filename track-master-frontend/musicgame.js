@@ -133,6 +133,7 @@ async function fetchFullDiscography(artistId) {
     tracklist.innerHTML = "";
 
     const title = document.createElement("h2");
+    title.classList.add("album-title");
     title.textContent = "Full Discography";
     tracklist.appendChild(title);
     fetchLeaderboard("Full Discography");
