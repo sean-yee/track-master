@@ -495,7 +495,7 @@ h2 {
     line-height: 1.6;
 }
 
-/*
+
 #pictures {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
@@ -509,7 +509,7 @@ h2 {
     height: auto;
     border-radius: 10px; 
     object-fit: cover;
-}*/
+}
 
 footer {
     text-align: left;
