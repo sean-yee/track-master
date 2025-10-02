@@ -509,3 +509,7 @@ h2 {
     border-radius: 10px; /* optional rounded corners */
     object-fit: cover;
 }
+
+footer {
+    text-align: left;
+}
