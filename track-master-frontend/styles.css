@@ -12,17 +12,8 @@ h1 {
     font-size: 6rem;
 }
 
-.content {
-    text-align: left;
-}
-
-.privacy-content {
-     text-align: left;
-}
-
 /* Search Bar */
 .search-box {
-    margin-top: 30px;
     position: relative;
     display: inline-block;
     width: 300px;
@@ -117,13 +108,6 @@ h1 {
 
 /* Center the album title */
 h2 {
-    margin: 0 auto 15px auto;
-    font-size: 1.3rem;
-    color: black;
-    margin-bottom: 12px;
-}
-
-.album-title {
     text-align: center;
     margin: 0 auto 15px auto;
     font-size: 1.3rem;
@@ -493,24 +477,4 @@ h2 {
 .modal-content p {
     font-size: 1.2rem;
     line-height: 1.6;
-}
-
-
-#pictures {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 20px; 
-    max-width: 800px; 
-    margin: 0 auto; 
-}
-
-#pictures img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px; 
-    object-fit: cover;
-}
-
-footer {
-    text-align: left;
 }

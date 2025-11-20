@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NXZHLRYQ6L"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -10,9 +11,10 @@
         gtag('config', 'G-NXZHLRYQ6L');
     </script>
 
+    <!-- Google AdSense Snippet -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8813518037249515"
      crossorigin="anonymous"></script>
-    
+     
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Track Master is an online music trivia game! It is the ultimate song guessing game! Test your music triva knowledge by naming songs from thousands of artists and albums. Start playing for free now!" />
@@ -20,147 +22,34 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
-    <header>
-        <h1>TRACK MASTER</h1>
+    <h1>TRACK MASTER</h1>
+    <h2>A Music Quiz Game</h2>
 
-        <nav>
-            <a href="#play-section">Play</a> |
-            <a href="#about-section">About</a> |
-            <a href="#privacy-section">Privacy Policy</a>
-        </nav>
-    </header>
+    <!-- Info Button -->
+    <button id="infoBtn" class="info-btn">ⓘ</button>
 
-    <section id="play-section">
-        <h2>A Music Quiz Game</h2>
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>About Track Master</h2>
+            <p>Welcome to Track Master, the ultamite online music trivia game! Test your music knowledge and guess songs from millions of artists and albums. Compete against players worldwide to land on the leaderboard. Fastest time wins!</p>
+            <p>Ready to play? Search for your favorite artist above to get started!</p>
+        </div>
+    </div>
 
-        <form id="searchForm" autocomplete="off">
-            <div class="search-box">
-                <input type="text" id="artistInput" placeholder="Search for an artist..." required>
-                <ul id="dropdown" class="dropdown"></ul>
-            </div>
-        </form>
+    <!-- Search Form -->
+    <form id="searchForm" autocomplete="off">
+        <div class="search-box">
+            <input type="text" id="artistInput" placeholder="Search for an artist..." required>
+            <ul id="dropdown" class="dropdown"></ul>
+        </div>
+    </form>
 
-        <div id="results"></div>
-        <div id="tracklist"></div>
+    <!-- Results Section -->
+    <div id="results"></div>
 
-        <script src="musicgame.js"></script>
-    </section>
+    <div id="tracklist"></div>
 
-    <section id="pictures">
-        <img src="images/tswift.png" alt="Taylor Swift">
-        <img src="images/badbunny.jpg" alt="Bad Bunny">
-        <img src="images/jungkook.jpg" alt="Jungkook">
-        <img src="images/kanye.jpg" alt="Kanye West">
-        <img src="images/sabrina.jpg" alt="Sabrina Carpenter">
-        <img src="images/drake.jpg" alt="Drake">
-    </section>
-
-    <section id="about-section">
-        <hr>
-        <h1>About Track Master</h1>
-        
-        <main class="content">
-            <section id="about">
-                <p>
-                    Track Master is an online music trivia game designed for fans who love testing their music knowledge. 
-                    There are millions of artists available to choose from; As long as they are on spotify, you can play their discography
-                    in Track Master.
-                <p>
-                    The project was built as a fun way to blend music and technology. It combines web development, APIs, and a custom leaderboard system so that players can compete with friends and music lovers around the world.
-                </p>
-            </section>
-
-            <section id="how-to-play">
-                <h2>How to Play</h2>
-                <ol>
-                    <li>Click the "Play" link to start playing</li>
-                    <li>Use the search bar on the Home page to find your favorite artist.</li>
-                    <li>Select an album to start a round of trivia. Or select their full discography for an extra challenge.</li>
-                    <li>You’ll be presented with a list of songs. Try to guess the correct track titles as quickly as possible.</li>
-                    <li>Earn points for each correct answer — faster guesses score higher!</li>
-                    <li>If you can't name every song, hit the "Give up" button and try again!</li>
-                    <li>If you correctly guess every song, add your name to the leaderboard to see how you compare with other players.</li>
-                </ol>
-                <p>
-                    Track Master is free to play and updates regularly with new music content. Whether you’re into pop, rock, hip hop, or indie, there’s always something new to discover.
-                </p>
-            </section>
-        </main>
-    </section>
-
-    <section id="privacy-section">
-        <hr>
-        <h1>Privacy Policy</h1>
-
-        <main class="privacy-content">
-            <p>At **Track Master**, your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information when you use our website and services.</p>
-
-            <h2>Information We Collect</h2>
-            <ul>
-                <li>We do not require you to create an account or log in to play the game.</li>
-                <li>We collect minimal information, such as player names and scores, when you submit a leaderboard entry.</li>
-            </ul>
-
-            <h2>How We Use Your Information</h2>
-            <ul>
-                <li>To display your name and score on the leaderboard.</li>
-                <li>To improve the game experience and functionality.</li>
-            </ul>
-
-            <h2>Data Sharing and Security</h2>
-            <ul>
-                <li>We do not sell or share your personal information with third parties for marketing purposes.</li>
-                <li>Data is stored securely and protected against unauthorized access.</li>
-            </ul>
-
-            <h2>Cookies and Tracking</h2>
-            <ul>
-                <li>We may use cookies or analytics tools like Google Analytics to track site usage and improve our services.</li>
-                <li>No personal information is collected through these tools.</li>
-            </ul>
-
-            <h2>Children’s Privacy</h2>
-            <p>Due to explicit content in some songs, this site is recommended for ages 13+. We do not knowingly collect personal information from children.</p>
-
-            <h2>Changes to This Policy</h2>
-            <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated date.</p>
-
-            <h2>Contact Us</h2>
-            <p>If you have any questions about this Privacy Policy, please dm us on twitter @wholelottachrom</p>
-        </main>
-    </section>
-    
-    <footer>
-    <p>Image credits:</p>
-    <ul>
-        <li>
-            <a href="https://www.flickr.com/photos/69880995@N04/54379278455/" target="_blank">Raph_PH</a>
-            via <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank">CC BY 2.0</a>
-        </li>
-        <li>
-            <a href="https://commons.wikimedia.org/wiki/File:Bad_Bunny_2019_by_Glenn_Francis_%28cropped%29.jpg" target="_blank">Toglenn</a>
-            via <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank">CC BY 2.0</a>
-            </li>
-        <li>
-            <a href="https://www.youtube.com/watch?v=xG0aTbyD5mg" target="_blank">Min Kyung-bin</a>
-            via <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank">CC BY 2.0</a>
-        </li>
-        <li>
-            <a href="https://www.flickr.com/photos/shankbone/3465084618/" target="_blank">David Shankbone</a>
-            via <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank">CC BY 2.0</a>
-        </li>
-        <li>
-            <a href="https://commons.wikimedia.org/wiki/File:Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_%281%29.png" target="_blank">iHeartRadioCA</a>
-            via <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank">CC BY 2.0</a>
-            </li>
-        <li>
-            <a href="https://www.flickr.com/photos/thecomeupshow/28082662994/" target="_blank">The Come Up Show</a>
-            via <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank">CC BY 2.0</a>
-        </li>
-    </ul>
-    </footer>
-
-
+    <script src="musicgame.js"></script>
 </body>
 </html>
