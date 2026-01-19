@@ -4,10 +4,14 @@
   "description": "Spotify track master frontend",
   "main": "index.html",
   "scripts": {
+    "start": "serve .",
     "build": "echo 'No build step needed for static site'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "serve": "^14.2.5"
+  }
 }

@@ -10,8 +10,14 @@ const tracklist = document.getElementById("tracklist");
 
 const CLIENT_ID = "f5e90e272abd41ce9ee9174f5e3686ec";
 const CLIENT_SECRET = "52e53e35add44375b3c9688da8a6bc81";
+const IS_PRODUCTION = window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost";
+
+const API_BASE_URL = IS_PRODUCTION
+    ? "https://track-master.onrender.com"
+    : "http://localhost:3000";
 
 let accessToken = "";
+let lyricMode = false;
 
 // When the user clicks the button, open the modal
 infoBtn.onclick = function() {
@@ -104,13 +110,42 @@ function displayAlbums(albums, artistId) {
         return;
     }
 
+    // Add game mode toggle btn
+    const controlsContainer = document.createElement("div");
+    controlsContainer.classList.add("mode-controls");
+    controlsContainer.style.marginBottom = "20px";
+    const initialColor = lyricMode ? "#ff6b6b" : "#1DB954";
+
+    controlsContainer.innerHTML = `
+        <label style="color: black; font-size: 18px; margin-right: 10px;">Game Mode:</label>
+        <button id="modeToggleBtn" style="padding: 8px 16px; cursor: pointer; background-color: ${initialColor};">🎵 Guess Tracks</button>`;
+
+    results.appendChild(controlsContainer);
+
+    //toggle logic
+    const modeBtn = document.getElementById("modeToggleBtn");
+    modeBtn.textContent = lyricMode ? "🎤 Guess Lyrics" : "🎵 Guess Tracks";
+
+    modeBtn.addEventListener("click", () => {
+        lyricMode = !lyricMode;
+        modeBtn.textContent = lyricMode ? "🎤 Guess Lyrics" : "🎵 Guess Tracks";
+        
+        // Optional: Change button color to indicate mode
+        modeBtn.style.backgroundColor = lyricMode ? "#ff6b6b" : "#1DB954";
+    }) 
+
     const discographyBtn = document.createElement("button");
     discographyBtn.textContent = "Full Discography";
     discographyBtn.classList.add("discography-btn");
     results.appendChild(discographyBtn);
 
     discographyBtn.addEventListener("click", () => {
-        fetchFullDiscography(artistId);
+        if(lyricMode) {
+            alert("coming soon");
+        }
+        else {
+            fetchFullDiscography(artistId);
+        }
     });
 
     albums.forEach(album => {
@@ -127,10 +162,322 @@ function displayAlbums(albums, artistId) {
 
         card.addEventListener("click", async () => {
             const albumTracks = await fetchAlbumTracks(album.id);
-            displayAlbumTracksTable(albumTracks.items, album.name, artistId);
+            if(typeof lyricMode !== 'undefined' && lyricMode) {
+                displaySongSelectionForLyrics(albumTracks.items, album.name, artistId, album.id);
+            }
+            else {
+                displayAlbumTracksTable(albumTracks.items, album.name, artistId);
+            }
+            
         });
 
         results.appendChild(card);
+    });
+}
+
+// ===================== NEW: Display Songs for Lyric Selection =====================
+function displaySongSelectionForLyrics(tracks, albumName, artistId, albumId) {
+    results.style.display = "none";
+    tracklist.style.display = "flex";
+    tracklist.innerHTML = "";
+
+    const title = document.createElement("h2");
+    title.textContent = `Select a song from "${albumName}"`;
+    tracklist.appendChild(title);
+
+    // Reuse your existing back button logic
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "← Back";
+    backBtn.classList.add("back-button");
+    tracklist.appendChild(backBtn);
+    setUpBackButton(backBtn, artistId);
+
+    // Create a list of clickable songs
+    const listContainer = document.createElement("div");
+    listContainer.style.display = "flex";
+    listContainer.style.flexDirection = "column";
+    listContainer.style.gap = "10px";
+    listContainer.style.marginTop = "20px";
+
+    tracks.forEach(track => {
+        const songBtn = document.createElement("button");
+        songBtn.textContent = track.name;
+        songBtn.classList.add("song-select-btn"); // Add css for this later
+        
+        // Make it look different than the "hidden" game rows
+        songBtn.style.padding = "10px";
+        songBtn.style.textAlign = "left";
+        songBtn.style.cursor = "pointer";
+        songBtn.style.backgroundColor = "#333";
+        songBtn.style.color = "#fff";
+        songBtn.style.border = "none";
+        songBtn.style.borderRadius = "5px";
+
+        songBtn.addEventListener("click", () => {
+            // THIS IS WHERE YOUR NEW LYRIC GAME STARTS
+            startLyricGame(track, artistId, albumId, albumName); 
+        });
+
+        listContainer.appendChild(songBtn);
+    });
+
+    tracklist.appendChild(listContainer);
+}
+
+async function fetchLyrics(artistName, trackName) {
+    try {
+        const safeArtist = encodeURIComponent(artistName);
+        const safeTrack = encodeURIComponent(trackName);
+
+        const response = await fetch(`${API_BASE_URL}/lyrics?artist=${safeArtist}&track=${safeTrack}`);
+
+        if(!response.ok) throw new Error("Lyrics not found");
+
+        const data = await response.json();
+        return data.lyrics;
+    }
+    catch(error) {
+        console.error("Lyrics Error:", error);
+        return null;
+    }
+}
+
+// ===================== START LYRIC GAME =====================
+async function startLyricGame(track, artistId, albumId, albumName) {
+    // 1. Show Loading State
+    tracklist.innerHTML = "";
+    const loadingMsg = document.createElement("h2");
+    loadingMsg.textContent = `Fetching Lyrics for: ${track.name}...`;
+    tracklist.appendChild(loadingMsg);
+
+    // 2. Fetch Lyrics
+    // (Assuming you have the artist name available or pass it. 
+    // If not, we can grab it from the previous screen's input or API data)
+    const artistName = document.getElementById("artistInput").value || "Unknown Artist"; 
+    const rawLyrics = await fetchLyrics(artistName, track.name);
+
+    if (!rawLyrics) {
+        tracklist.innerHTML = `
+            <h2>Error</h2>
+            <p>Could not find lyrics for "${track.name}".</p>
+        `;
+        // Re-add a back button so they aren't stuck
+        const backBtn = document.createElement("button");
+        backBtn.textContent = "← Back";
+        backBtn.classList.add("back-button");
+        // FIX: Ensure back button works even on error
+        backBtn.addEventListener("click", async () => {
+             const albumTracks = await fetchAlbumTracks(albumId);
+             displaySongSelectionForLyrics(albumTracks.items, albumName, artistId, albumId);
+        });
+        tracklist.appendChild(backBtn);
+        return;
+    }
+
+    // 3. Setup UI
+    tracklist.innerHTML = "";
+    const title = document.createElement("h2");
+    title.textContent = `Guess the Lyrics: ${track.name}`;
+    tracklist.appendChild(title);
+
+    // Reuse your existing controls function!
+    const { backBtn, search, timerDisplay, restartBtn, giveUpBtn } = setupControls(artistId);
+    
+    // Override the back button to go back to song selection, not albums
+    backBtn.addEventListener("click", async () => {
+        // 1. Fetch the tracks for this album again
+        const albumTracks = await fetchAlbumTracks(albumId);
+        
+        // 2. Re-display the song selection screen
+        displaySongSelectionForLyrics(albumTracks.items, albumName, artistId, albumId);
+    });
+
+    // 4. Render the Lyrics & Get Game State
+    // We create a container for the lyrics text
+    const lyricsContainer = document.createElement("div");
+    lyricsContainer.classList.add("lyrics-game-container");
+    tracklist.appendChild(lyricsContainer);
+
+    // This function will draw the words and return the list of "hidden" elements
+    const hiddenWordElements = renderLyricGame(rawLyrics, lyricsContainer);
+
+    // 5. Start the Game Logic
+    setupLyricGuessing(hiddenWordElements, search, timerDisplay, restartBtn, giveUpBtn);
+}
+
+// ===================== RENDER LYRIC GAME =====================
+function renderLyricGame(text, container) {
+    const hiddenElements = []; // Store references to all hidden words
+    container.innerHTML = "";
+
+    // Regex Explanation:
+    // 1. (\[.*?\])      -> Matches Headers like [Chorus]
+    // 2. (\(.*?\))      -> Matches Parentheticals like (Yeah)
+    // 3. (\n)           -> Matches Newlines
+    // 4. ([a-zA-Z0-9']+) -> Matches Words (Letters, numbers, apostrophes)
+    // 5. (.)            -> Matches Punctuation/Spaces (anything else)
+    const tokens = text.split(/(\[.*?\])|(\(.*?\))|(\n)|([a-zA-Z0-9']+)|(.)/g).filter(t => t);
+
+    tokens.forEach(token => {
+        if (!token) return;
+
+        const span = document.createElement("span");
+
+        if (token.startsWith("[") && token.endsWith("]")) {
+            // CASE 1: Headers (Always Visible)
+            span.textContent = token;
+            span.classList.add("lyric-header");
+            span.style.fontWeight = "bold";
+            span.style.color = "#1DB954";
+            span.style.display = "block"; // Headers get their own line
+            span.style.marginTop = "15px";
+            span.style.marginBottom = "5px";
+
+        } else if (token.startsWith("(") && token.endsWith(")")) {
+            // CASE 2: Parentheticals (Always Visible)
+            span.textContent = token;
+            span.classList.add("lyric-parenthetical");
+            span.style.color = "#aaa";
+
+        } else if (token === "\n") {
+            // CASE 3: Newlines
+            container.appendChild(document.createElement("br"));
+            return; // Don't append span
+
+        } else if (/^[a-zA-Z0-9']+$/.test(token)) {
+            // CASE 4: Guessable Words (Hidden)
+            span.textContent = "___"; // Placeholder
+            span.dataset.word = token.toLowerCase(); // Store the answer
+            span.dataset.original = token; // Store original case
+            span.classList.add("hidden-word");
+            
+            // Styling for hidden words
+            span.style.borderBottom = "2px solid #555";
+            span.style.margin = "0 2px";
+            span.style.color = "transparent"; // Hide text
+            span.style.minWidth = "20px";
+            span.style.display = "inline-block";
+
+            hiddenElements.push(span); // Add to our tracking list
+
+        } else {
+            // CASE 5: Punctuation & Spaces (Visible)
+            span.textContent = token;
+            span.style.whiteSpace = "pre"; // Preserve spaces
+        }
+
+        container.appendChild(span);
+    });
+
+    return hiddenElements;
+}
+
+// ===================== LYRIC GUESSING LOGIC =====================
+function setupLyricGuessing(hiddenElements, search, timerDisplay, restartBtn, giveUpBtn) {
+    let startTime = null;
+    let interval = null;
+    
+    const totalWords = hiddenElements.length;
+    let guessedCount = 0;
+
+    // Start Timer
+    function startTimer() {
+        if (interval) return;
+        startTime = Date.now();
+        interval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            const formattedSecs = secs < 10 ? `0${secs}` : secs;
+            timerDisplay.textContent = `Time: ${mins}:${formattedSecs}`;
+        }, 1000);
+    }
+
+    // Check Input
+    search.addEventListener("input", () => {
+        startTimer();
+        
+        // Clean input (lowercase, trim)
+        const guess = search.value.trim().toLowerCase();
+        if (!guess) return;
+
+        let matchFound = false;
+
+        // Check against ALL hidden words
+        hiddenElements.forEach(span => {
+            // If word is already found, skip it
+            if (span.classList.contains("revealed")) return;
+
+            if (span.dataset.word === guess) {
+                // REVEAL LOGIC
+                span.textContent = span.dataset.original; // Show real word
+                span.style.color = "white";
+                span.style.borderBottom = "none";
+                span.classList.add("revealed");
+                span.classList.remove("hidden-word");
+                
+                guessedCount++;
+                matchFound = true;
+            }
+        });
+
+        // If a match was found, clear the input so they can type the next word
+        if (matchFound) {
+            search.value = "";
+            
+            // Check Win Condition
+            if (guessedCount === totalWords) {
+                clearInterval(interval);
+                timerDisplay.textContent = `✅ Lyrics Completed!`;
+                search.disabled = true;
+                search.placeholder = "Great job!";
+                
+                // Optional: Add to Leaderboard logic here
+            }
+        }
+    });
+
+    // Give Up Logic
+    giveUpBtn.addEventListener("click", () => {
+        clearInterval(interval);
+        search.disabled = true;
+        
+        // Reveal all remaining words in Red
+        hiddenElements.forEach(span => {
+            if (!span.classList.contains("revealed")) {
+                span.textContent = span.dataset.original;
+                span.style.color = "#ff6b6b"; // Red color for missed words
+                span.style.borderBottom = "none";
+            }
+        });
+        
+        const percent = ((guessedCount / totalWords) * 100).toFixed(1);
+        timerDisplay.textContent = `❌ You gave up! ${percent}% complete`;
+    });
+
+    // Restart Logic
+    restartBtn.addEventListener("click", () => {
+        // Just reload the whole function context
+        // Since we don't have easy access to 'track' object here without passing it down,
+        // a simple trick is to trigger the click on the "Retry" button or re-render.
+        // For now, let's just reset the DOM elements:
+        
+        clearInterval(interval);
+        interval = null;
+        startTime = null;
+        guessedCount = 0;
+        search.value = "";
+        search.disabled = false;
+        search.placeholder = "Guess words...";
+        timerDisplay.textContent = "Time: 0:00";
+
+        hiddenElements.forEach(span => {
+            span.textContent = "___";
+            span.style.color = "transparent";
+            span.style.borderBottom = "2px solid #555";
+            span.classList.remove("revealed");
+            span.classList.add("hidden-word");
+        });
     });
 }
 
@@ -187,7 +534,7 @@ async function fetchFullDiscography(artistId) {
 // ===================== Create shared controls =====================
 function setupControls(artistId) {
     const backBtn = document.createElement("button");
-    backBtn.textContent = "← Back to albums";
+    backBtn.textContent = "← Back";
     backBtn.classList.add("back-button");
     tracklist.appendChild(backBtn);
 

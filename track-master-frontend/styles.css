@@ -478,3 +478,21 @@ h2 {
     font-size: 1.2rem;
     line-height: 1.6;
 }
+
+.lyrics-game-container {
+    background-color: #181818;
+    padding: 30px;
+    border-radius: 8px;
+    line-height: 2.2; /* Spacing for the inputs */
+    font-size: 16px;
+    text-align: left;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: monospace; /* Helps align words */
+}
+
+.lyric-header {
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
