@@ -6,7 +6,7 @@ const Genius = require("genius-lyrics"); // Import the lyrics library
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const Client = new Genius.Client(); // Create the scraper client
+const Client = new Genius.Client(process.env.GENIUS_ACCESS_TOKEN); // Create the scraper client
 
 app.use(cors());
 app.use(bodyParser.json());
