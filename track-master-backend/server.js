@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const db = require("./database");
 const Genius = require("genius-lyrics"); // Import the lyrics library
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
