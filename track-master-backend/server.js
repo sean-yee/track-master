@@ -2,26 +2,34 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const db = require("./database");
-const Genius = require("genius-lyrics"); // Import the lyrics library
+const Genius = require("genius-lyrics");
+const axios = require("axios"); // ✅ NEW: Import Axios for the workaround
+
+// 1. Try to load local .env file (It's okay if this fails on Render)
+try {
+    require('dotenv').config();
+} catch (e) {
+    // We are on Render, or dotenv isn't installed. Skip it.
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Use the Environment variable (Render) OR the hardcoded string (Local)
-const token = process.env.GENIUS_ACCESS_TOKEN;
+// 2. GET THE TOKEN
+// Priority 1: Render Environment Variable
+// Priority 2: Hardcoded Fallback (Only use this for local testing)
+const token = process.env.GENIUS_ACCESS_TOKEN || "PASTE_YOUR_REAL_TOKEN_HERE_FOR_LOCAL_USE";
 
-if (!token) {
-    console.error("⚠️ CRITICAL: No Genius Access Token found! Lyrics fetching will fail.");
+if (!token || token === "token") {
+    console.error("⚠️ CRITICAL: No valid Genius Access Token found! Lyrics fetching may fail.");
 }
 
-// Initialize the client
 const Client = new Genius.Client(token);
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// ===================== LYRICS ENDPOINT =====================
-// This is the new route your frontend will call to get lyrics
+// ===================== LYRICS ENDPOINT (HYBRID FIX) =====================
 app.get('/lyrics', async (req, res) => {
     const { artist, track } = req.query;
 
@@ -30,36 +38,53 @@ app.get('/lyrics', async (req, res) => {
     }
 
     try {
-        // 1. Search Genius for the song
-        // We combine track + artist to get a more accurate search result
+        // STEP 1: Search Genius for Metadata (Allowed on Render)
+        // We use Genius to verify the song exists and get the clean title
         const searches = await Client.songs.search(`${track} ${artist}`);
 
         if (searches.length === 0) {
-            return res.status(404).json({ error: "Lyrics not found" });
+            return res.status(404).json({ error: "Song not found on Genius" });
         }
 
-        // 2. Pick the first result from the search
         const firstSong = searches[0];
+        console.log(`✅ Genius identified: ${firstSong.title} by ${firstSong.artist.name}`);
 
-        // 3. Scrape the lyrics
-        let lyrics = await firstSong.lyrics();
+        // STEP 2: Fetch the actual text from lyrics.ovh (No blocking!)
+        // Genius blocks scraping from Render, so we ask a different API for the text.
+        
+        // Clean up the title (remove "ft. Drake", "Remix", etc. for better matching)
+        const cleanTitle = firstSong.title.replace(/\s*\(.*?\)\s*/g, "").trim(); 
+        const cleanArtist = firstSong.artist.name;
 
-        // 4. clean up unwated stuff
-        const startIndex = lyrics.indexOf('[');
-        if(startIndex !== -1) {
-            lyrics = lyrics.substring(startIndex);
+        try {
+            // Request lyrics from the open API
+            const ovhResponse = await axios.get(`https://api.lyrics.ovh/v1/${cleanArtist}/${cleanTitle}`);
+            
+            // Check if we actually got text back
+            if(ovhResponse.data && ovhResponse.data.lyrics) {
+                 res.json({ 
+                    title: firstSong.title,
+                    artist: firstSong.artist.name,
+                    lyrics: ovhResponse.data.lyrics 
+                });
+            } else {
+                throw new Error("No lyrics in response");
+            }
+
+        } catch (ovhError) {
+            console.log("⚠️ OVH failed to find lyrics text. Sending metadata only.");
+            // We return null for lyrics so the frontend knows to show a "Sorry" message
+            // instead of crashing.
+            res.json({ 
+                title: firstSong.title,
+                artist: firstSong.artist.name,
+                lyrics: null 
+            });
         }
-
-        // 5. Send back the clean data
-        res.json({ 
-            title: firstSong.title,
-            artist: firstSong.artist.name,
-            lyrics: lyrics 
-        });
 
     } catch (error) {
-        console.error("Error fetching lyrics:", error);
-        res.status(500).json({ error: "Failed to fetch lyrics" });
+        console.error("🔥 Server Error:", error.message);
+        res.status(500).json({ error: "Failed to process request" });
     }
 });
 
@@ -96,5 +121,5 @@ app.post("/leaderboard", (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });

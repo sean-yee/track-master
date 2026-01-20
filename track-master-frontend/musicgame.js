@@ -251,57 +251,62 @@ async function startLyricGame(track, artistId, albumId, albumName) {
     tracklist.appendChild(loadingMsg);
 
     // 2. Fetch Lyrics
-    // (Assuming you have the artist name available or pass it. 
-    // If not, we can grab it from the previous screen's input or API data)
     const artistName = document.getElementById("artistInput").value || "Unknown Artist"; 
+    
+    // This calls your backend. 
+    // If backend returns { lyrics: null }, rawLyrics will be null.
     const rawLyrics = await fetchLyrics(artistName, track.name);
 
+    // 3. Handle "No Lyrics Found" (Prevents white screen crash)
     if (!rawLyrics) {
         tracklist.innerHTML = `
-            <h2>Error</h2>
-            <p>Could not find lyrics for "${track.name}".</p>
+            <h2>Sorry!</h2>
+            <p>We found the song "<strong>${track.name}</strong>", but the lyrics text is not available publicly.</p>
+            <p><em>(This happens with some copyrighted or less popular songs.)</em></p>
         `;
-        // Re-add a back button so they aren't stuck
-        const backBtn = document.createElement("button");
-        backBtn.textContent = "← Back";
-        backBtn.classList.add("back-button");
-        // FIX: Ensure back button works even on error
-        backBtn.addEventListener("click", async () => {
+        
+        // Create a specific Back Button for this error screen
+        const errorBackBtn = document.createElement("button");
+        errorBackBtn.textContent = "← Choose a different song";
+        errorBackBtn.classList.add("back-button");
+        errorBackBtn.style.marginTop = "20px";
+        
+        errorBackBtn.addEventListener("click", async () => {
+             // Go back to the song list correctly
              const albumTracks = await fetchAlbumTracks(albumId);
              displaySongSelectionForLyrics(albumTracks.items, albumName, artistId, albumId);
         });
-        tracklist.appendChild(backBtn);
+
+        tracklist.appendChild(errorBackBtn);
         return;
     }
 
-    // 3. Setup UI
+    // 4. Setup Game UI (Success)
     tracklist.innerHTML = "";
     const title = document.createElement("h2");
     title.textContent = `Guess the Lyrics: ${track.name}`;
     tracklist.appendChild(title);
 
-    // Reuse your existing controls function!
+    // Reuse your existing controls function
     const { backBtn, search, timerDisplay, restartBtn, giveUpBtn } = setupControls(artistId);
     
-    // Override the back button to go back to song selection, not albums
-    backBtn.addEventListener("click", async () => {
-        // 1. Fetch the tracks for this album again
+    // 5. Fix the Back Button Logic
+    // We override the default back button to ensure it goes to the Song List, not the Album List
+    backBtn.replaceWith(backBtn.cloneNode(true)); // Hack to clear previous event listeners
+    const newBackBtn = document.querySelector(".back-button"); // Select the clean button
+
+    newBackBtn.addEventListener("click", async () => {
         const albumTracks = await fetchAlbumTracks(albumId);
-        
-        // 2. Re-display the song selection screen
         displaySongSelectionForLyrics(albumTracks.items, albumName, artistId, albumId);
     });
 
-    // 4. Render the Lyrics & Get Game State
-    // We create a container for the lyrics text
+    // 6. Render the Game Board
     const lyricsContainer = document.createElement("div");
     lyricsContainer.classList.add("lyrics-game-container");
     tracklist.appendChild(lyricsContainer);
 
-    // This function will draw the words and return the list of "hidden" elements
+    // Draw the words and start the game engine
     const hiddenWordElements = renderLyricGame(rawLyrics, lyricsContainer);
-
-    // 5. Start the Game Logic
     setupLyricGuessing(hiddenWordElements, search, timerDisplay, restartBtn, giveUpBtn);
 }
 
