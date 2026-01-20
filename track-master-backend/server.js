@@ -3,11 +3,19 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const db = require("./database");
 const Genius = require("genius-lyrics"); // Import the lyrics library
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const Client = new Genius.Client(process.env.GENIUS_ACCESS_TOKEN); // Create the scraper client
+
+// Use the Environment variable (Render) OR the hardcoded string (Local)
+const token = process.env.GENIUS_ACCESS_TOKEN;
+
+if (!token) {
+    console.error("⚠️ CRITICAL: No Genius Access Token found! Lyrics fetching will fail.");
+}
+
+// Initialize the client
+const Client = new Genius.Client(token);
 
 app.use(cors());
 app.use(bodyParser.json());
